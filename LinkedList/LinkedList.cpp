@@ -1,9 +1,11 @@
 ﻿#include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <string>
+#include <ctime>
 
 using namespace std;
+
+int main();
 
 template<typename T>
 class List {
@@ -21,6 +23,9 @@ public:
 	void clear();
 	T& operator[](const int index);
 	bool isEmpty();
+	double getAverage();
+	void changeSourceDataToNewData(T sourceData, T newData);
+	void changeFirstAndLast();
 
 private:
 
@@ -93,7 +98,7 @@ void List<T>::insert(T data, int index) {
 
 		/* Более короткая реализация:
 		* previous -> pNext = new Node<T> (data, previous->pNext)*/
-	
+
 		Size++;
 	}
 }
@@ -110,10 +115,10 @@ void List<T>::removeAt(int index) {
 			previous = previous->pNext;
 		}
 
-		Node<T> nodeToDelete = previous->pNext;
+		Node<T>* nodeToDelete = previous->pNext;
 		previous->pNext = nodeToDelete->pNext;
 
-		delete nodeToDelete ;
+		delete nodeToDelete;
 		Size--;
 	}
 }
@@ -161,38 +166,122 @@ bool List<T>::isEmpty() {
 	else return false;
 }
 
+template<typename T>
+double List<T>::getAverage()
+{
+	Node<T>* node = head;
+	double amount = 0;
+
+	for (int i = 0; i < Size; i++) {
+		amount += node->data;
+		node = node->pNext;
+	}
+
+	return amount / Size;
+}
+
+template<typename T>
+void List<T>::changeSourceDataToNewData(T sourceData, T newData){
+	Node<T>* node = head;
+	for (int i = 0; i < Size; i++) {
+		if (node->data == sourceData) {
+			node->data = newData;
+		}
+		node = node->pNext;
+	}
+}
+
+template<typename T>
+void List<T>::changeFirstAndLast() {
+	Node<T>* lastNode = head;
+	for (int i = 0; i < Size-1; i++) {
+		lastNode = lastNode->pNext;
+	}
+
+	T tempData = lastNode->data;
+	lastNode->data = head->data;
+	head->data = tempData;
+}
+
+template<typename T>
+void printList(List<T>& lst) {
+	for (int i = 0; i < lst.getSize(); i++) {
+		cout << lst[i] << " ";
+	}
+	cout << endl;
+}
+
 
 int main()
 {
 	setlocale(LC_ALL, "Russian");
-	List<int> lst;
+	srand(time(NULL));
+	List<int> myList;
+	int num1, num2;
+	bool choice;
 
-	lst.push_back(5);
-	lst.push_back(10);
-	lst.push_back(15);
+	// Работа с листом
+	cout << "Введите размер листа, который будет заполнен случайными элементами: ";
+	cin >> num1;
+	for (int i = 0; i < num1; i++) {
+		myList.push_back(rand() % 20);
+	}
+	printList(myList);
+	
+	cout << "Введите число, которое хотите добавить в конец листа: ";
+	cin >> num1;
+	myList.push_back(num1);
+	printList(myList);
 
-	cout << "Элементов в списке: " << lst.getSize() << endl;
-	cout << "Эти элементы:";
-	for (int i = 0; i < lst.getSize(); i++) {
-		cout << " " << lst[i];
+	cout << "Введите число, которое хотите добавить в начало листа: ";
+	cin >> num1;
+	myList.push_front(num1);
+	printList(myList);
+
+	cout << "Хотите удалить первый элемент списка?(0 - нет, 1 - да): ";
+	cin >> choice;
+	if (choice) {
+		myList.pop_front();
+	}
+	printList(myList);
+
+	cout << "Хотите удалить последний элемент списка?(0 - нет, 1 - да): ";
+	cin >> choice;
+	if (choice) {
+		myList.pop_back();
+	}
+	printList(myList);
+
+	cout << "Введите элемент и индекс, на который хотите вставить его (размер листа равен " << myList.getSize() << "): ";
+	cin >> num1 >> num2;
+	myList.insert(num1, num2);
+	printList(myList);
+
+	cout << "Введите индекс, с которого хотите удалить элемент(размер листа равен " << myList.getSize() << "): ";
+	cin >> num1;
+	myList.removeAt(num1);
+	printList(myList);
+
+	cout << "Среднее арифметическое листа: " << myList.getAverage() << endl;
+
+	cout << "Введите элемент, который хотите заменить, и новый элемент, на который хотите заменить: ";
+	cin >> num1 >> num2;
+	myList.changeSourceDataToNewData(num1, num2);
+	printList(myList);
+
+	cout << "Смена первого и последнего элемента:" << endl;
+	myList.changeFirstAndLast();
+	printList(myList);
+
+	cout << "Очистить лист:(0 - нет, 1 - да): ";
+	cin >> choice;
+	if (choice) {
+		myList.clear();
 	}
 
-	lst.push_front(1);
-	cout << "\nПосле push_front(): " << endl;
-	cout << "Элементов в списке: " << lst.getSize() << endl;
-	cout << "Эти элементы:";
-	for (int i = 0; i < lst.getSize(); i++) {
-		cout << " " << lst[i];
-	}
-
-	lst.insert(19, 2);
-	cout << "\nПосле insert(19, 2): " << endl;
-	cout << "Элементов в списке: " << lst.getSize() << endl;
-	cout << "Эти элементы:";
-	for (int i = 0; i < lst.getSize(); i++) {
-		cout << " " << lst[i];
-	}
-
-
+	cout << "Пуст ли список?: ";
+	if (myList.isEmpty()) cout << "Да";
+	else cout << "Нет";
+	
 	return 0;
 }
