@@ -19,4 +19,6 @@ int getSize()
 
 void clear()
 
+T& operator[](const int index)
+
 bool isEmpty()
